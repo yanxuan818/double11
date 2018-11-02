@@ -3,15 +3,15 @@
     <div class="main_con">
       <div class="banner"></div>
       <div class="coupon_list">
-        <div class="item clearfix">
+        <div class="item clearfix" v-for="item of couponListData" :key="item.typeNumber">
           <div class="coupon_price">
-            <b>&yen;</b><span>20</span>
+            <b>&yen;</b><span>{{item.value}}</span>
           </div>
           <div class="coupon_name">
-            <p>接送机/站立减</p><p>优惠券</p>
+            <p>{{item.ticketName}}</p><p>优惠券</p>
           </div>
-          <div class="coupon_cost" @click="couponBuy()">
-            <div class="price"><b>&yen;</b><span>1</span></div>
+          <div class="coupon_cost" :class="{'disabled':item.available==0}" @click="getCounpon(item.available,item.typeNumber)">
+            <div class="price"><b>&yen;</b><span>{{item.cost}}</span></div>
             <div class="btn">立即抢购</div>
           </div>
         </div>
@@ -19,7 +19,6 @@
       <div class="btn_my_coupon"></div>
       <div class="txt_rule"></div>
     </div>
-    <div class="mask" v-show="isMask==true"></div>
     <div class="pop_success" v-show="isPopSuccess==true"> 
       <i class="icon"></i>
       <div class="txt">立减优惠券购买成功</div>
@@ -44,26 +43,43 @@ export default {
       isPopSuccess:false,  //领取成功
       isPopFail:false,  //领取失败
       isPopSoldout:false, //已领取完
-      isMask:false,  //遮罩
       num50:0,  //50元券已领数
       num20:0,  //20元券已领数
+      couponListData:"" //优惠券列表数据
     }
   },
+  mounted(){
+    this.couponList();
+  },
   methods:{
+    //优惠券查询
+    couponList: async function () {
+      let params={};
+      let res = await this.$root.http.get('/api/coupon', params,this);
+      console.log(res);
+      if(res.data.code==0){
+        this.couponListData=res.data.data;
+      }
+    },
+    //领取优惠券
+    getCounpon:async function(isDiabled,num){
+      if(isDiabled==1){
+        let params={};
+        let res = await this.$root.http.post("/api/coupon/buy?typeNumber="+num,params,this);
+        if(res!=undefined&&res.data.code==0){
+          window.location.href=res.data.data.redirectUrl;
+        }
+      }
+    },
     //弹窗关闭
     popHide(){
-      this.isMask=this.isPopSuccess=this.isPopFail=this.isPopSoldout=false;
+      this.$root.isMask=this.isPopSuccess=this.isPopFail=this.isPopSoldout=false;
     },
-    //立即抢购
-    couponBuy(){
-      this.isMask=true;
-      this.isPopSuccess=true;
-    }
   }
 }
 </script>
 
-<style lang="less">
+<style lang="less" scoped>
 .page_index{
   margin:0 auto;
   max-width:7.5rem;
@@ -112,7 +128,9 @@ export default {
         float:left;
         padding:0.38rem 0.27rem 0.15rem 0.39rem;
         width:1.25rem;
+        cursor: pointer;
         &.disabled{
+          cursor: default;
           .btn{
             background:#ccc;
           }
@@ -147,7 +165,7 @@ export default {
     .btn_my_coupon{
       margin:0.21rem auto 0.57rem;
       width:2.4rem;
-      height:0.8rem;
+      height:0.85rem;
       background:url("../../assets/images/btnMyCoupon.png") no-repeat top center;
       background-size:cover;
     }
@@ -157,15 +175,6 @@ export default {
       background:url("../../assets/images/txtRule.png") no-repeat top center;
       background-size:cover;
     }
-  }
-  .mask{
-    position: fixed;
-    z-index: 500;
-    left:0;
-    right:0;
-    top:0;
-    bottom:0;
-    background:rgba(0,0,0,0.8);
   }
   .pop_success{
     position:fixed;

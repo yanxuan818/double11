@@ -17,29 +17,23 @@ function checkStatus(response, This) {
     if (response && (response.status === 200 || response.status === 304 || response.status === 400)) {
         return response
     }
-    // 异常状态下，把错误信息返回去
-    return {
-        status: -404,
-        msg: '网络异常'
-    }
 }
-let baseURL= 'http://172.23.101.83/';
+let baseURL= 'http://test.bthhotels.com:60000';
 function checkCode(res, This) {
-    
-    if (res.status === -404) {
-      
-        This.$router.push({ path: '/err'})
-         return
+    if (res.data.code === 402||res.data.code === 500||res.data.code==506) {
+        This.$root.isMask=true;
+        This.$root.isError=res.data.message;
+        return;
     }
     // token 过期  或则错误
-    else if (res.data.Code == 99) {  
-       
+    else if (res.data.Code == 401) {  
+        window.location.href = 'https://login.bthhotels.com/login/index?returnUrl=' + encodeURIComponent(window.location.href)
+    }else{
+        return res;
     }
-    return res;
 }
 export default {
-    post(url, data, This) {
-      
+    post(url, data, This) {     
         return axios({
             method: 'post',
             baseURL: baseURL,
@@ -60,7 +54,6 @@ export default {
         )
     },
     get(url, params, This) {
-     
         return axios({
             method: 'get',
             baseURL: baseURL,
