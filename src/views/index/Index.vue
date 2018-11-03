@@ -16,13 +16,13 @@
           </div>
         </div>
       </div>
-      <div class="btn_my_coupon"></div>
+      <a href="http://test.bthhotels.com:9880/MyCoupon" class="btn_my_coupon"></a>
       <div class="txt_rule"></div>
     </div>
     <div class="pop_success" v-show="isPopSuccess==true"> 
       <i class="icon"></i>
       <div class="txt">立减优惠券购买成功</div>
-      <div class="btn">去使用</div>
+      <a :href="userLink" class="btn">去使用</a>
       <div class="close" @click="popHide()"><span></span></div>
     </div>
     <div class="pop_fail" v-show="isPopFail==true">
@@ -45,18 +45,42 @@ export default {
       isPopSoldout:false, //已领取完
       num50:0,  //50元券已领数
       num20:0,  //20元券已领数
-      couponListData:"" //优惠券列表数据
+      couponListData:"", //优惠券列表数据
+      userLink:"javascript:" //去使用链接
     }
   },
   mounted(){
-    this.couponList();
+    let curHref=window.location.href,
+        isBuy=curHref.indexOf("voucherId="),
+        voucherId=curHref.substr(curHref.indexOf("voucherId=")+10);
+    if(isBuy>=0){
+      this.couponResult(voucherId);
+    }else{
+      this.couponList();
+    }    
   },
   methods:{
+    //优惠券结果
+    couponResult:async function(id){
+      let params ={};
+      let res=await this.$root.http.post("/api/coupon/result?voucherId="+id,params,this);
+      if(res!=undefined){
+        if(res.data.code==0){
+          this.$root.isMask=true;
+          this.isPopSuccess=true;
+          this.userLink=res.data.data;
+          this.couponList();
+        }else if(res.data.code==505){
+          this.$root.isMask=true;
+          this.isPopSoldout=true;
+          this.couponList();
+        }
+      }
+    },
     //优惠券查询
     couponList: async function () {
       let params={};
       let res = await this.$root.http.get('/api/coupon', params,this);
-      console.log(res);
       if(res.data.code==0){
         this.couponListData=res.data.data;
       }
@@ -66,8 +90,16 @@ export default {
       if(isDiabled==1){
         let params={};
         let res = await this.$root.http.post("/api/coupon/buy?typeNumber="+num,params,this);
-        if(res!=undefined&&res.data.code==0){
-          window.location.href=res.data.data.redirectUrl;
+        if(res!=undefined){
+          if(res.data.code==0){
+            window.location.href=res.data.data.redirectUrl;
+          }else if(res.data.code==505){
+            this.$root.isMask=true;
+            this.isPopSoldout=true;
+          }else if(res.data.code==507){
+            this.$root.isMask=true;
+            this.isPopFail=true;
+          }
         }
       }
     },
@@ -91,6 +123,7 @@ export default {
       height:7.23rem;
       background:url("../../assets/images/banner.png") no-repeat top center;
       background-size:contain;
+      -webkit-background-size:contain;
     }
     .coupon_list .item{
       width:100%;
@@ -163,6 +196,7 @@ export default {
       }
     }
     .btn_my_coupon{
+      display: block;
       margin:0.21rem auto 0.57rem;
       width:2.4rem;
       height:0.85rem;
@@ -204,6 +238,7 @@ export default {
       text-align: center;
     }
     .btn{
+      display:block;
       margin:0.62rem auto 0;
       width:2.08rem;
       height:0.6rem;

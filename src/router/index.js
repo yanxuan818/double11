@@ -6,12 +6,13 @@ Vue.use(Router)
     
 export default new Router({
     mode: "history",
-    routes: [{
+    routes: [
+        {
             path: '*',
-            redirect: '/index',
+            redirect: '/',
         },
         {
-            path: '/index',
+            path: '/',
             name: 'Index',
             component: Index
         },

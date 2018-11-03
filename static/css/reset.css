@@ -41,7 +41,7 @@ a:link{ text-decoration:none;}
 a:visited{ text-decoration:none;}
 a:hover{ text-decoration:none;outline:none;}
 a:active, a:focus {outline:none;}
-
+*{ -webkit-tap-highlight-color: transparent;}
 /*浮动相关*/
 .fl{float:left;}
 .fr{float:right;}

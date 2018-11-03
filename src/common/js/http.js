@@ -20,13 +20,14 @@ function checkStatus(response, This) {
 }
 let baseURL= 'http://test.bthhotels.com:60000';
 function checkCode(res, This) {
+    console.log(res);
     if (res.data.code === 402||res.data.code === 500||res.data.code==506) {
         This.$root.isMask=true;
         This.$root.isError=res.data.message;
-        return;
+        return ;
     }
-    // token 过期  或则错误
-    else if (res.data.Code == 401) {  
+    // 未登录
+    else if (res.data.code == 401) {  
         window.location.href = 'https://login.bthhotels.com/login/index?returnUrl=' + encodeURIComponent(window.location.href)
     }else{
         return res;
