@@ -16,7 +16,7 @@
           </div>
         </div>
       </div>
-      <a href="http://test.bthhotels.com:9880/MyCoupon" class="btn_my_coupon"></a>
+      <a href="http://flights.bthhotels.com/MyCoupon" class="btn_my_coupon"></a>
       <div class="txt_rule"></div>
     </div>
     <div class="pop_success" v-show="isPopSuccess==true"> 

@@ -18,7 +18,7 @@ function checkStatus(response, This) {
         return response
     }
 }
-let baseURL= 'http://test.bthhotels.com:60000';
+let baseURL= 'http://ecosphere.bthhotels.com/';
 function checkCode(res, This) {
     console.log(res);
     if (res.data.code === 402||res.data.code === 500||res.data.code==506) {
